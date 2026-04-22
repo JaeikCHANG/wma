@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 WMACs 대구 대비 분석기</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; font-family: "Malgun Gothic","Noto Sans KR",sans-serif; background:#f0f2f5; }
+  #app { display: flex; height: 100vh; overflow: hidden; }
+
+  #sidebar {
+    width: 280px; min-width: 280px; height: 100vh; overflow-y: auto;
+    background: linear-gradient(180deg, #0d1b6e 0%, #1565C0 100%);
+    color: #fff; padding: 20px; display: flex; flex-direction: column;
+    box-shadow: 3px 0 12px rgba(0,0,0,.25);
+  }
+  #sidebar h4 { font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px; margin-bottom: 20px; }
+  .nav-link { color: rgba(255,255,255,0.8); cursor: pointer; border-radius: 5px; margin-bottom: 5px; padding: 10px 15px; }
+  .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: bold; }
+  .sidebar-badge {
+    display: inline-block; font-size: 0.7em; background: rgba(255,255,255,0.2);
+    border-radius: 10px; padding: 1px 7px; margin-left: 6px; vertical-align: middle;
+  }
+
+  #main { flex: 1; padding: 30px; overflow-y: auto; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .card { border-radius: 10px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+  .card-header { background: #fff; border-bottom: 1px solid #eee; font-weight: bold; border-radius: 10px 10px 0 0 !important; padding: 14px 18px; }
+
+  .result-box { padding: 15px; border-radius: 8px; margin-bottom: 10px; font-size: 1.05em; display: flex; justify-content: space-between; align-items: center; }
+  .pass   { background-color: #d1e7dd; color: #0f5132; }
+  .warn   { background-color: #f8d7da; color: #842029; }
+  .medal  { background-color: #cff4fc; color: #055160; }
+  .neutral{ background-color: #e2e3e5; color: #41464b; }
+
+  /* 연도 뱃지 */
+  .year-badge {
+    display: inline-block; font-size: 0.75em; font-weight: 700;
+    border-radius: 4px; padding: 2px 7px; margin-right: 6px;
+  }
+  .badge-2024 { background: #1565C0; color: #fff; }
+  .badge-2022 { background: #e65100; color: #fff; }
+  .badge-2018 { background: #2e7d32; color: #fff; }
+
+  /* 추이 탭 컨트롤 */
+  .trend-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 16px; }
+  .trend-controls > div { display: flex; flex-direction: column; gap: 4px; }
+  .trend-controls select { padding: 6px 28px 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9em; min-width: 160px; }
+  .trend-controls label { font-size: 0.85em; color: #555; margin-bottom: 0; }
+
+  /* 라운드 요약 연도 탭 */
+  .year-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .year-tab-btn {
+    padding: 6px 18px; border-radius: 20px; border: 2px solid #1565C0;
+    background: #fff; color: #1565C0; font-weight: 700; font-size: 0.9em; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .year-tab-btn.active { background: #1565C0; color: #fff; }
+  .year-tab-btn.y2022 { border-color: #e65100; color: #e65100; }
+  .year-tab-btn.y2022.active { background: #e65100; color: #fff; }
+  .year-tab-btn.y2018 { border-color: #2e7d32; color: #2e7d32; }
+  .year-tab-btn.y2018.active { background: #2e7d32; color: #fff; }
+
+  /* 참가규모 안내 */
+  .scale-note { font-size: 0.82em; color: #888; margin-left: 10px; }
+  .scale-large { color: #1565C0; font-weight: 600; }
+  .scale-small { color: #e65100; font-weight: 600; }
+
+  @media (max-width: 768px) {
+    #app { flex-direction: column; }
+    #sidebar { width: 100%; height: auto; min-height: auto; padding: 10px; }
+    .nav { flex-direction: row; flex-wrap: wrap; }
+    .nav-link { flex: 1; text-align: center; padding: 8px; font-size: 0.9em; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar">
+    <h4 style="cursor:pointer;" onclick="resetAll()" title="클릭하면 초기화">🏟️ WMA 대구 2026</h4>
+    <nav class="nav flex-column">
+      <a class="nav-link active" onclick="switchTab('tab-analyze', this)">⏱️ 기록 분석</a>
+      <a class="nav-link" onclick="switchTab('tab-history', this)">📚 라운드 요약</a>
+      <a class="nav-link" onclick="switchTab('tab-trend', this)">📈 연도 추이</a>
+    </nav>
+    <div style="margin-top:auto; padding-top:20px; font-size:0.75em; opacity:0.5; text-align:center;">
+      데이터: 2018 Malaga · 2022 Tampere · 2024 Gothenburg
+    </div>
+  </div>
+
+  <div id="main">
+
+    <!-- ① 기록 분석 탭 -->
+    <div id="tab-analyze" class="tab-pane active">
+      <h2>기록 분석 및 목표 설정</h2>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">내 기록 입력</div>
+            <div class="card-body">
+              <label class="form-label">연령대</label>
+              <select id="sel-age" class="form-select mb-3">
+                <option value="M35">M35 (1989년생)</option>
+                <option value="M45">M45 (1979년생)</option>
+              </select>
+              <label class="form-label">종목</label>
+              <select id="sel-event" class="form-select mb-3">
+                <option value="800m">800m</option>
+                <option value="1500m">1500m</option>
+                <option value="5000m">5000m</option>
+              </select>
+              <label class="form-label">기준 연도</label>
+              <select id="sel-year" class="form-select mb-3">
+                <option value="2024">2024 Gothenburg (~8000명)</option>
+                <option value="2022">2022 Tampere (~4600명)</option>
+                <option value="2018">2018 Malaga (~8200명)</option>
+              </select>
+              <label class="form-label">현재 기록 <small class="text-muted">(예: 1:58.00)</small></label>
+              <input type="text" id="inp-record" class="form-control mb-3" placeholder="mm:ss.SS 또는 hh:mm:ss">
+              <button class="btn btn-primary w-100" onclick="analyzeRecord()">분석하기</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header" id="analysis-header">단계별 컷오프 비교</div>
+            <div class="card-body" id="analysis-result">
+              <p class="text-muted">좌측에서 연령대·종목·연도를 선택하세요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 라운드 요약 탭 -->
+    <div id="tab-history" class="tab-pane">
+      <h2>역대 라운드별 컷오프 요약</h2>
+      <div class="year-tabs">
+        <button class="year-tab-btn active" onclick="switchHistoryYear('2024', this)">2024 Gothenburg</button>
+        <button class="year-tab-btn y2022" onclick="switchHistoryYear('2022', this)">2022 Tampere</button>
+        <button class="year-tab-btn y2018" onclick="switchHistoryYear('2018', this)">2018 Malaga</button>
+      </div>
+      <p class="text-muted" id="history-scale-note"></p>
+      <div class="card">
+        <div class="card-body" id="history-content"></div>
+      </div>
+    </div>
+
+    <!-- ③ 연도 추이 탭 -->
+    <div id="tab-trend" class="tab-pane">
+      <h2>연도별 기록 추이</h2>
+      <div class="card">
+        <div class="card-body">
+          <div class="trend-controls">
+            <div>
+              <label>연령대</label>
+              <select id="trend-age" class="form-select form-select-sm" onchange="renderTrendChart()">
+                <option value="M35">M35</option>
+                <option value="M45">M45</option>
+              </select>
+            </div>
+            <div>
+              <label>종목</label>
+              <select id="trend-event" class="form-select form-select-sm" onchange="renderTrendChart()">
+                <option value="800m">800m</option>
+                <option value="1500m">1500m</option>
+                <option value="5000m">5000m</option>
+              </select>
+            </div>
+            <div>
+              <label>표시 기록</label>
+              <select id="trend-rank" class="form-select form-select-sm" onchange="renderTrendChart()">
+                <option value="1">금메달 (1위)</option>
+                <option value="3">동메달 (3위)</option>
+                <option value="top25">결승 상위 25%</option>
+                <option value="top50">결승 상위 50%</option>
+                <option value="heat_cut">예선 컷오프</option>
+                <option value="semi_cut">준결승 컷오프</option>
+              </select>
+            </div>
+          </div>
+          <div id="trend-scale-note" class="mb-3"></div>
+          <canvas id="trendChart" height="90"></canvas>
+          <div id="trend-table" class="mt-4"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let wmaData = {};
+let trendChartInstance = null;
+let currentHistoryYear = '2024';
+
+const YEAR_META = {
+  '2024': { city: 'Gothenburg', scale: '대규모 (~8,028명)', cls: 'scale-large' },
+  '2022': { city: 'Tampere',    scale: '소규모 (~4,617명)', cls: 'scale-small' },
+  '2018': { city: 'Malaga',     scale: '대규모 (~8,200명)', cls: 'scale-large' },
+};
+
+// ── 유틸 함수 ─────────────────────────────────────────────
+// DNS/DNF/DQ 제외한 유효 기록만
+function validEntries(arr) {
+  if (!arr) return [];
+  return arr.filter(x => x.mark && !['DNS','DNF','DQ','NM'].includes(String(x.mark).toUpperCase()));
+}
+
+// ── 초기화 ───────────────────────────────────────────────
+function resetAll() {
+  document.getElementById('sel-age').value   = 'M35';
+  document.getElementById('sel-event').value = '800m';
+  document.getElementById('sel-year').value  = '2024';
+  document.getElementById('inp-record').value = '';
+  switchTab('tab-analyze', document.querySelector('.nav-link'));
+  analyzeRecord();
+}
+
+// ── 데이터 로드 ──────────────────────────────────────────
+fetch('wma_data.json?v=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    wmaData = data;
+    renderHistory('2024');
+    renderTrendChart();
+    document.getElementById('sel-age').addEventListener('change', analyzeRecord);
+    document.getElementById('sel-event').addEventListener('change', analyzeRecord);
+    document.getElementById('sel-year').addEventListener('change', analyzeRecord);
+    analyzeRecord();
+  })
+  .catch(err => {
+    console.error('JSON 로드 오류:', err);
+    document.getElementById('analysis-result').innerHTML =
+      `<div class="alert alert-danger">🚨 <strong>wma_data.json 로드 실패</strong><br><small>오류: ${err.message}</small></div>`;
+  });
+
+// ── 탭 전환 ──────────────────────────────────────────────
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  el.classList.add('active');
+  if (tabId === 'tab-trend') renderTrendChart();
+}
+
+// ── 시간 변환 ─────────────────────────────────────────────
+function timeToSeconds(t) {
+  if (!t) return 9999;
+  const p = t.split(':');
+  if (p.length === 3) return +p[0]*3600 + +p[1]*60 + parseFloat(p[2]);
+  if (p.length === 2) return +p[0]*60 + parseFloat(p[1]);
+  return parseFloat(t);
+}
+function secondsToDisplay(s) {
+  if (s >= 3600) {
+    const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = (s%60).toFixed(2);
+    return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(5,'0')}`;
+  }
+  const m = Math.floor(s/60), sec = (s%60).toFixed(2);
+  return `${m}:${String(sec).padStart(5,'0')}`;
+}
+
+// ── 기록 분석 ─────────────────────────────────────────────
+function analyzeRecord() {
+  if (!Object.keys(wmaData).length) return;
+  const age      = document.getElementById('sel-age').value;
+  const event    = document.getElementById('sel-event').value;
+  const year     = document.getElementById('sel-year').value;
+  const recordStr= document.getElementById('inp-record').value.trim();
+  const meta     = YEAR_META[year] || {};
+
+  document.getElementById('analysis-header').innerHTML =
+    `<span class="year-badge badge-${year}">${year}</span> ${event} (${age}) — ${meta.city || ''} 기준 컷오프`;
+
+  const eventData = wmaData[year]?.[event]?.[age];
+  if (!eventData) {
+    document.getElementById('analysis-result').innerHTML =
+      `<div class="alert alert-warning">해당 연도·종목·연령대 데이터가 없습니다.<br><small>${year}년 데이터를 추가하면 표시됩니다.</small></div>`;
+    return;
+  }
+
+  const hasHeat  = !!eventData.heat;
+  const hasSemi  = !!eventData.semi;
+  const hasFinal = !!eventData.final;
+  let milestones = [];
+  let typeDesc   = '';
+
+  if (!hasHeat && !hasSemi && hasFinal) {
+    // 결승 직행 — DNS/DNF 제외
+    const f = validEntries(eventData.final), n = f.length;
+    typeDesc = `🏁 결승 직행 (완주 ${n}명)`;
+    const top50pct = f[Math.floor((n-1)*0.5)];
+    const top25pct = f[Math.floor((n-1)*0.25)];
+    milestones = [
+      { name:'상위 50% 진입', label:`상위 50% (${Math.floor(n*0.5)+1}위권)`, obj: top50pct },
+      { name:'상위 25% 진입', label:`상위 25% (${Math.floor(n*0.25)+1}위권)`, obj: top25pct },
+      { name:'메달 획득', label:'동메달 (3위)', obj: f.find(x=>x.rank===3)||f[2] },
+      { name:'우승',      label:'금메달 (1위)', obj: f[0] },
+    ];
+  } else if (!hasHeat && hasSemi && hasFinal) {
+    // 준결승 → 결승 (2022 800m 구조)
+    const s = validEntries(eventData.semi), f = validEntries(eventData.final);
+    const cutIdx = Math.min(f.length-1, s.length-1);
+    typeDesc = `🔥 준결승 ➔ 결승 (준결승 ${s.length}명 ➔ 결승 ${f.length}명)`;
+    milestones = [
+      { name:'준결승 통과', label:`준결승 컷오프`, obj: s[cutIdx] },
+      { name:'결승 상위 50%', label:`결승 상위 50% (${Math.floor(f.length*0.5)+1}위권)`, obj: f[Math.floor((f.length-1)*0.5)] },
+      { name:'결승 상위 25%', label:`결승 상위 25% (${Math.floor(f.length*0.25)+1}위권)`, obj: f[Math.floor((f.length-1)*0.25)] },
+      { name:'메달 획득',  label:'동메달 (3위)',   obj: f.find(x=>x.rank===3)||f[2] },
+      { name:'우승',        label:'금메달 (1위)',    obj: f[0] },
+    ];
+  } else if (hasHeat && !hasSemi && hasFinal) {
+    // 예선 → 결승
+    const h = validEntries(eventData.heat), f = validEntries(eventData.final);
+    const cutIdx = Math.min(f.length-1, h.length-1);
+    const rate = Math.round(f.length/h.length*100);
+    typeDesc = `🔥 예선 ➔ 결승 (${h.length}명 ➔ ${f.length}명, 생존율 ${rate}%)`;
+    milestones = [
+      { name:'예선 통과',   label:`예선 컷오프`, obj: h[cutIdx] },
+      { name:'결승 상위 50%', label:`결승 상위 50% (${Math.floor(f.length*0.5)+1}위권)`, obj: f[Math.floor((f.length-1)*0.5)] },
+      { name:'결승 상위 25%', label:`결승 상위 25% (${Math.floor(f.length*0.25)+1}위권)`, obj: f[Math.floor((f.length-1)*0.25)] },
+      { name:'메달 획득',  label:'동메달 (3위)',   obj: f.find(x=>x.rank===3)||f[2] },
+      { name:'우승',        label:'금메달 (1위)',    obj: f[0] },
+    ];
+  } else if (hasHeat && hasSemi && hasFinal) {
+    // 예선 → 준결승 → 결승
+    const h = validEntries(eventData.heat), s = validEntries(eventData.semi), f = validEntries(eventData.final);
+    typeDesc = `🔥 예선 ➔ 준결승 ➔ 결승 (${h.length}명 참가)`;
+    milestones = [
+      { name:'예선 통과',    label:'예선 컷오프', obj: h[Math.min(s.length-1,h.length-1)] },
+      { name:'준결승 통과',  label:'준결승 컷오프', obj: s[Math.min(f.length-1,s.length-1)] },
+      { name:'결승 상위 50%', label:`결승 상위 50% (${Math.floor(f.length*0.5)+1}위권)`, obj: f[Math.floor((f.length-1)*0.5)] },
+      { name:'결승 상위 25%', label:`결승 상위 25% (${Math.floor(f.length*0.25)+1}위권)`, obj: f[Math.floor((f.length-1)*0.25)] },
+      { name:'메달 획득',   label:'동메달 (3위)', obj: f.find(x=>x.rank===3)||f[2] },
+      { name:'우승',         label:'금메달 (1위)', obj: f[0] },
+    ];
+  }
+
+  milestones = milestones.filter(m => m.obj?.mark);
+
+  let html = `<p class="text-muted mb-3">${typeDesc} <span class="${meta.cls} scale-note">${meta.scale}</span></p>`;
+
+  if (!recordStr) {
+    milestones.forEach(m => {
+      html += `<div class="result-box neutral"><span>${m.label}</span><strong>${m.obj.mark}</strong></div>`;
+    });
+    html += `<div class="alert alert-secondary mt-3">ℹ️ 기록을 입력하면 다음 목표를 자동 계산합니다.</div>`;
+  } else {
+    const myTime = timeToSeconds(recordStr);
+    let target = null;
+    milestones.forEach(m => {
+      const isPass = myTime <= timeToSeconds(m.obj.mark);
+      if (!isPass && !target) target = m;
+      const cls = isPass ? (m.name.includes('메달')||m.name==='우승' ? 'medal' : 'pass') : 'warn';
+      const icon = isPass ? '✅' : '⚠️';
+      html += `<div class="result-box ${cls}"><span>${m.label}: <strong>${m.obj.mark}</strong></span><span>${icon} ${isPass?'도달':'단축 필요'}</span></div>`;
+    });
+    if (target) {
+      const tSec = timeToSeconds(target.obj.mark) * 0.99;
+      html += `<div class="alert alert-primary mt-3">🎯 <strong>다음 목표 (${target.name}): ${secondsToDisplay(tSec)}</strong><br><small>현재 컷오프에서 1% 단축한 현실적 목표</small></div>`;
+    } else {
+      html += `<div class="alert alert-success mt-3">🏆 세계 챔피언 기록에 도달했습니다!</div>`;
+    }
+  }
+
+  document.getElementById('analysis-result').innerHTML = html;
+}
+
+// ── 라운드 요약 ───────────────────────────────────────────
+function switchHistoryYear(year, btn) {
+  document.querySelectorAll('.year-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory(year);
+}
+
+function renderHistory(year) {
+  currentHistoryYear = year;
+  const meta = YEAR_META[year] || {};
+  const yearData = wmaData[year];
+
+  const noteEl = document.getElementById('history-scale-note');
+  noteEl.innerHTML = `<span class="year-badge badge-${year}">${year} ${meta.city||''}</span>
+    <span class="${meta.cls}">${meta.scale||''}</span>`;
+
+  if (!yearData) {
+    document.getElementById('history-content').innerHTML =
+      `<div class="alert alert-warning">${year}년 데이터가 없습니다.</div>`;
+    return;
+  }
+
+  let html = `<div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle" style="font-size:0.9em">
+    <thead class="table-dark"><tr>
+      <th>종목</th><th>연령</th><th>라운드</th><th>인원</th><th>1위 기록</th><th>컷오프 (진출 마지노선)</th>
+    </tr></thead><tbody>`;
+
+  for (const ev in yearData) {
+    for (const age in yearData[ev]) {
+      const ed = yearData[ev][age];
+      const roundOrder = ['heat', 'semi', 'final'];
+      const sortedRounds = Object.keys(ed).sort((a,b) => roundOrder.indexOf(a) - roundOrder.indexOf(b));
+      for (const round of sortedRounds) {
+        const rData = ed[round]?.filter(x => x.mark && !['DNS','DNF','DQ','NM'].includes(String(x.mark).toUpperCase()));
+        if (!rData?.length) continue;
+        const total = rData.length;
+        const first = rData[0].mark;
+        // 결승은 표시 안 함 (기록 분석 탭에서 확인)
+        if (round === 'final') continue;
+        const roundName = round==='heat'?'예선': '준결승';
+
+        // 다음 라운드로 컷오프 계산
+        const nextRound = round==='heat' ? (ed.semi?'semi':(ed.final?'final':null))
+                        : round==='semi' ? 'final' : null;
+        let cutMark = '-';
+        if (nextRound && ed[nextRound]) {
+          const nextData = ed[nextRound].filter(x => x.mark && !['DNS','DNF','DQ','NM'].includes(String(x.mark).toUpperCase()));
+          const nextN  = nextData.length;
+          const cutObj = rData[Math.min(nextN-1, total-1)];
+          if (cutObj) cutMark = `${cutObj.mark} (${cutObj.rank}위까지 진출)`;
+        }
+
+        html += `<tr>
+          <td><strong>${ev}</strong></td>
+          <td>${age}</td>
+          <td><span class="badge bg-secondary">${roundName}</span></td>
+          <td>${total}명</td>
+          <td><strong>${first}</strong></td>
+          <td>${cutMark}</td>
+        </tr>`;
+      }
+    }
+  }
+  html += `</tbody></table></div>`;
+  document.getElementById('history-content').innerHTML = html;
+}
+
+// ── 연도 추이 차트 ────────────────────────────────────────
+function renderTrendChart() {
+  if (!Object.keys(wmaData).length) return;
+
+  const age   = document.getElementById('trend-age').value;
+  const event = document.getElementById('trend-event').value;
+  const rankVal = document.getElementById('trend-rank').value;
+
+  // 보유 연도 정렬
+  const years = Object.keys(wmaData).map(Number).sort();
+  const labels = years.map(y => {
+    const m = YEAR_META[y] || {};
+    return `${y}\n(${m.city||''})`;
+  });
+
+  // 각 연도에서 해당 순위 기록 추출 (final 기준, 유효 기록만)
+  function getRecord(year) {
+    const ed = wmaData[year]?.[event]?.[age];
+    if (!ed) return null;
+
+    if (rankVal === 'heat_cut') {
+      const heat = validEntries(ed.heat);
+      const nextRound = ed.semi ? validEntries(ed.semi) : validEntries(ed.final);
+      if (!heat.length || !nextRound.length) return null;
+      const cutObj = heat[Math.min(nextRound.length-1, heat.length-1)];
+      return cutObj ? timeToSeconds(cutObj.mark) : null;
+    }
+    if (rankVal === 'semi_cut') {
+      const semi = validEntries(ed.semi);
+      const fin  = validEntries(ed.final);
+      if (!semi.length || !fin.length) return null;
+      const cutObj = semi[Math.min(fin.length-1, semi.length-1)];
+      return cutObj ? timeToSeconds(cutObj.mark) : null;
+    }
+
+    const final = validEntries(ed.final);
+    if (!final.length) return null;
+    let entry;
+    if (rankVal === 'top25') {
+      entry = final[Math.floor((final.length-1)*0.25)];
+    } else if (rankVal === 'top50') {
+      entry = final[Math.floor((final.length-1)*0.5)];
+    } else {
+      const r = parseInt(rankVal);
+      entry = final.find(x => x.rank === r) || final[r-1];
+    }
+    return entry ? timeToSeconds(entry.mark) : null;
+  }
+
+  const dataPoints = years.map(y => getRecord(y));
+  const hasData = dataPoints.some(v => v !== null);
+
+  // 2026 예측선 (단순 선형 추세)
+  const validPairs = years.map((y,i) => [y, dataPoints[i]]).filter(p => p[1]!==null);
+  let predicted2026 = null;
+  if (validPairs.length >= 2) {
+    const n = validPairs.length;
+    const sumX = validPairs.reduce((s,p)=>s+p[0],0);
+    const sumY = validPairs.reduce((s,p)=>s+p[1],0);
+    const sumXY= validPairs.reduce((s,p)=>s+p[0]*p[1],0);
+    const sumX2= validPairs.reduce((s,p)=>s+p[0]*p[0],0);
+    const slope= (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+    const inter= (sumY - slope*sumX) / n;
+    predicted2026 = slope*2026 + inter;
+  }
+
+  const allLabels = [...labels, '2026\n(대구) 예측'];
+  const allData   = [...dataPoints, predicted2026];
+
+  // 참가 규모 표기
+  const noteEl = document.getElementById('trend-scale-note');
+  noteEl.innerHTML = years.map(y => {
+    const m = YEAR_META[y]||{};
+    return `<span class="year-badge badge-${y}">${y}</span><span class="${m.cls} me-3">${m.scale||''}</span>`;
+  }).join('') + `<span class="text-muted" style="font-size:0.8em">※ 참가 규모가 다른 대회는 직접 비교 시 주의</span>`;
+
+  const rankLabel = rankVal==='top25'?'결승 상위 25%': rankVal==='top50'?'결승 상위 50%': rankVal==='heat_cut'?'예선 컷오프': rankVal==='semi_cut'?'준결승 컷오프': rankVal==='1'?'금메달(1위)': rankVal==='3'?'동메달(3위)':`${rankVal}위`;
+
+  if (trendChartInstance) trendChartInstance.destroy();
+
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  trendChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: allLabels,
+      datasets: [
+        {
+          label: `${event} ${age} ${rankLabel} 기록 (초)`,
+          data: allData,
+          borderColor: '#1565C0',
+          backgroundColor: 'rgba(21,101,192,0.08)',
+          pointBackgroundColor: allData.map((_,i) => i===allData.length-1 ? '#e65100' : '#1565C0'),
+          pointRadius: allData.map((_,i) => i===allData.length-1 ? 8 : 5),
+          pointStyle: allData.map((_,i) => i===allData.length-1 ? 'star' : 'circle'),
+          borderDash: [],
+          tension: 0.3,
+          spanGaps: true,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.raw;
+              if (v===null) return '데이터 없음';
+              return `${secondsToDisplay(v)} (${v.toFixed(2)}초)`;
+            }
+          }
+        },
+        legend: { display: true }
+      },
+      scales: {
+        y: {
+          reverse: true,
+          title: { display: false },
+          ticks: { callback: v => secondsToDisplay(v) }
+        },
+        x: {
+          ticks: { maxRotation: 0, font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  // 표 형태로도 표시
+  if (hasData) {
+    let tableHtml = `<table class="table table-sm table-bordered text-center" style="font-size:0.88em">
+      <thead class="table-dark"><tr><th>연도</th><th>개최지</th><th>참가규모</th><th>${event} ${age} ${rankLabel}</th></tr></thead><tbody>`;
+    years.forEach(y => {
+      const sec = getRecord(y);
+      const m = YEAR_META[y]||{};
+      tableHtml += `<tr>
+        <td><span class="year-badge badge-${y}">${y}</span></td>
+        <td>${m.city||'-'}</td>
+        <td class="${m.cls}">${m.scale||'-'}</td>
+        <td><strong>${sec ? secondsToDisplay(sec) : '-'}</strong></td>
+      </tr>`;
+    });
+    if (predicted2026) {
+      tableHtml += `<tr class="table-warning">
+        <td><strong>2026 예측</strong></td><td>대구</td><td>-</td>
+        <td><strong>${secondsToDisplay(predicted2026)}</strong> <small class="text-muted">(선형 추세)</small></td>
+      </tr>`;
+    }
+    tableHtml += `</tbody></table>`;
+    document.getElementById('trend-table').innerHTML = tableHtml;
+  }
+}
+</script>
+</body>
+</html>
