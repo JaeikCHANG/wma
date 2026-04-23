@@ -72,6 +72,28 @@
   .scale-large { color: #1565C0; font-weight: 600; }
   .scale-small { color: #e65100; font-weight: 600; }
 
+  /* 라운드 요약 필터 */
+  .history-filters { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; align-items: center; }
+  .filter-group { display: flex; align-items: center; gap: 6px; }
+  .filter-label { font-size: 0.82em; color: #666; font-weight: 600; margin-right: 2px; }
+  .filter-btn {
+    padding: 4px 14px; border-radius: 20px; border: 1.5px solid #aaa;
+    background: #fff; color: #555; font-size: 0.85em; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: #1565C0; color: #1565C0; }
+  .filter-btn.active { background: #1565C0; color: #fff; border-color: #1565C0; font-weight: 600; }
+
+  /* 연령대 행 색상 구분 */
+  .age-M35 { background-color: #f0f4ff; }
+  .age-M40 { background-color: #e8f0fe; }
+  .age-M45 { background-color: #dce8fd; }
+  .age-M50 { background-color: #d0e0fc; }
+  .age-W35 { background-color: #fff0f5; }
+  .age-W40 { background-color: #ffe4ef; }
+  .age-W45 { background-color: #ffd6e8; }
+  .age-W50 { background-color: #ffc8e0; }
+
   @media (max-width: 768px) {
     #app { flex-direction: column; }
     #sidebar { width: 100%; height: auto; min-height: auto; padding: 10px; }
@@ -156,6 +178,21 @@
         <button class="year-tab-btn y2022" onclick="switchHistoryYear('2022', this)">2022 Tampere</button>
         <button class="year-tab-btn y2018" onclick="switchHistoryYear('2018', this)">2018 Malaga</button>
       </div>
+      <div class="history-filters">
+        <div class="filter-group">
+          <span class="filter-label">성별</span>
+          <button class="filter-btn active" data-filter="gender" data-value="all" onclick="setHistoryFilter('gender','all',this)">전체</button>
+          <button class="filter-btn" data-filter="gender" data-value="M" onclick="setHistoryFilter('gender','M',this)">남성</button>
+          <button class="filter-btn" data-filter="gender" data-value="W" onclick="setHistoryFilter('gender','W',this)">여성</button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">종목</span>
+          <button class="filter-btn active" data-filter="event" data-value="all" onclick="setHistoryFilter('event','all',this)">전체</button>
+          <button class="filter-btn" data-filter="event" data-value="800m" onclick="setHistoryFilter('event','800m',this)">800m</button>
+          <button class="filter-btn" data-filter="event" data-value="1500m" onclick="setHistoryFilter('event','1500m',this)">1500m</button>
+          <button class="filter-btn" data-filter="event" data-value="5000m" onclick="setHistoryFilter('event','5000m',this)">5000m</button>
+        </div>
+      </div>
       <p class="text-muted" id="history-scale-note"></p>
       <div class="card">
         <div class="card-body" id="history-content"></div>
@@ -219,6 +256,7 @@
 let wmaData = {};
 let trendChartInstance = null;
 let currentHistoryYear = '2024';
+let historyFilter = { gender: 'all', event: 'all' };
 
 const YEAR_META = {
   '2024': { city: 'Gothenburg', scale: '대규모 (~8,028명)', cls: 'scale-large' },
@@ -393,6 +431,14 @@ function analyzeRecord() {
   document.getElementById('analysis-result').innerHTML = html;
 }
 
+// ── 라운드 요약 필터 ─────────────────────────────────────
+function setHistoryFilter(type, value, btn) {
+  historyFilter[type] = value;
+  document.querySelectorAll(`.filter-btn[data-filter="${type}"]`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory(currentHistoryYear);
+}
+
 // ── 라운드 요약 ───────────────────────────────────────────
 function switchHistoryYear(year, btn) {
   document.querySelectorAll('.year-tab-btn').forEach(b => b.classList.remove('active'));
@@ -420,8 +466,14 @@ function renderHistory(year) {
       <th>종목</th><th>연령</th><th>라운드</th><th>인원</th><th>1위 기록</th><th>컷오프 (진출 마지노선)</th>
     </tr></thead><tbody>`;
 
-  for (const ev in yearData) {
-    for (const age in yearData[ev]) {
+  const evOrder = ['800m','1500m','5000m'];
+  const ageOrder = ['M35','M40','M45','M50','W35','W40','W45','W50'];
+  const evKeys = evOrder.filter(e => yearData[e]);
+  for (const ev of evKeys) {
+    if (historyFilter.event !== 'all' && ev !== historyFilter.event) continue;
+    const ageKeys = ageOrder.filter(a => yearData[ev][a]);
+    for (const age of ageKeys) {
+      if (historyFilter.gender !== 'all' && !age.startsWith(historyFilter.gender)) continue;
       const ed = yearData[ev][age];
       const roundOrder = ['heat', 'semi', 'final'];
       const sortedRounds = Object.keys(ed).sort((a,b) => roundOrder.indexOf(a) - roundOrder.indexOf(b));
@@ -445,9 +497,9 @@ function renderHistory(year) {
           if (cutObj) cutMark = `${cutObj.mark} (${cutObj.rank}위까지 진출)`;
         }
 
-        html += `<tr>
+        html += `<tr class="age-${age}">
           <td><strong>${ev}</strong></td>
-          <td>${age}</td>
+          <td><strong>${age}</strong></td>
           <td><span class="badge bg-secondary">${roundName}</span></td>
           <td>${total}명</td>
           <td><strong>${first}</strong></td>
