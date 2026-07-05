@@ -5363,7 +5363,8 @@
   <div id="sidebar">
     <h4 style="cursor:pointer;" onclick="resetAll()" title="클릭하면 초기화">🏟️ WMA 대구 2026</h4>
     <nav class="nav flex-column">
-      <a class="nav-link active" onclick="switchTab('tab-analyze', this)">⏱️ 기록 분석</a>
+      <a class="nav-link active" onclick="switchTab('tab-2026', this)">🎯 2026 대구</a>
+      <a class="nav-link" onclick="switchTab('tab-analyze', this)">⏱️ 기록 분석</a>
       <a class="nav-link" onclick="switchTab('tab-history', this)">📚 라운드 요약</a>
       <a class="nav-link" onclick="switchTab('tab-trend', this)">📈 연도 추이</a>
     </nav>
@@ -5375,7 +5376,7 @@
   <div id="main">
 
     <!-- ① 기록 분석 탭 -->
-    <div id="tab-analyze" class="tab-pane active">
+    <div id="tab-analyze" class="tab-pane">
       <h2>기록 분석 및 목표 설정</h2>
       <div class="row mt-4">
         <div class="col-md-4">
@@ -5401,6 +5402,7 @@
               </select>
               <label class="form-label">종목</label>
               <select id="sel-event" class="form-select mb-3">
+                <option value="400m">400m</option>
                 <option value="800m">800m</option>
                 <option value="1500m">1500m</option>
                 <option value="5000m">5000m</option>
@@ -5447,6 +5449,7 @@
         <div class="filter-group">
           <span class="filter-label">종목</span>
           <button class="filter-btn active" data-filter="event" data-value="all" onclick="setHistoryFilter('event','all',this)">전체</button>
+          <button class="filter-btn" data-filter="event" data-value="400m" onclick="setHistoryFilter('event','400m',this)">400m</button>
           <button class="filter-btn" data-filter="event" data-value="800m" onclick="setHistoryFilter('event','800m',this)">800m</button>
           <button class="filter-btn" data-filter="event" data-value="1500m" onclick="setHistoryFilter('event','1500m',this)">1500m</button>
           <button class="filter-btn" data-filter="event" data-value="5000m" onclick="setHistoryFilter('event','5000m',this)">5000m</button>
@@ -5486,6 +5489,7 @@
             <div>
               <label>종목</label>
               <select id="trend-event" class="form-select form-select-sm" onchange="renderTrendChart()">
+                <option value="400m">400m</option>
                 <option value="800m">800m</option>
                 <option value="1500m">1500m</option>
                 <option value="5000m">5000m</option>
@@ -5510,11 +5514,71 @@
       </div>
     </div>
 
+    <!-- ④ 2026 대구 참가현황 탭 -->
+    <div id="tab-2026" class="tab-pane active">
+      <h2>2026 대구 참가신청 현황 기반 예상 컷오프</h2>
+      <div class="alert alert-secondary" style="font-size:0.85em;">
+        ⚠️ 아래 데이터는 실제 경기 결과가 아니라 <strong>WMAC 2026 대구 참가신청 시스템에 등록된 자기 기록(entry mark)</strong> 기준입니다.
+        참가신청 시점에 본인이 입력한 기록이라 실제 경기 기록과는 다를 수 있습니다.
+        (기록 없음 "NT"·비정상 입력값은 순위 계산에서 제외했습니다)
+        <div id="entries2026-meta" class="mt-1" style="font-weight:600;"></div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">조회 조건</div>
+            <div class="card-body">
+              <label class="form-label">연령대</label>
+              <select id="sel2026-age" class="form-select mb-3">
+                <optgroup label="남성">
+                  <option value="M35">M35</option>
+                  <option value="M40">M40</option>
+                  <option value="M45">M45</option>
+                  <option value="M50">M50</option>
+                  <option value="M55">M55</option>
+                </optgroup>
+                <optgroup label="여성">
+                  <option value="W35">W35</option>
+                  <option value="W40">W40</option>
+                  <option value="W45">W45</option>
+                  <option value="W50">W50</option>
+                  <option value="W55">W55</option>
+                </optgroup>
+              </select>
+              <label class="form-label">종목</label>
+              <select id="sel2026-event" class="form-select mb-3">
+                <option value="400m">400m</option>
+                <option value="800m">800m</option>
+                <option value="1500m">1500m</option>
+                <option value="5000m">5000m</option>
+              </select>
+              <label class="form-label">현재 기록 <small class="text-muted">(예: 1:58.00)</small></label>
+              <input type="text" id="inp2026-record" class="form-control mb-3" placeholder="mm:ss.SS 또는 hh:mm:ss">
+              <button class="btn btn-primary w-100" onclick="renderEntries2026()">분석하기</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header" id="entries2026-header">현재 등록자 기준 예상 컷오프</div>
+            <div class="card-body" id="entries2026-result">
+              <p class="text-muted">좌측에서 연령대·종목을 선택하세요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-header" id="entries2026-list-header">전체 등록자 목록</div>
+        <div class="card-body" id="entries2026-list"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script>
 let wmaData = {};
+let entries2026 = {};
 let trendChartInstance = null;
 let currentHistoryYear = '2024';
 let historyFilter = { gender: 'all', event: 'all' };
@@ -5538,8 +5602,11 @@ function resetAll() {
   document.getElementById('sel-event').value = '800m';
   document.getElementById('sel-year').value  = '2024';
   document.getElementById('inp-record').value = '';
-  switchTab('tab-analyze', document.querySelector('.nav-link'));
-  analyzeRecord();
+  document.getElementById('sel2026-age').value   = 'M35';
+  document.getElementById('sel2026-event').value = '400m';
+  document.getElementById('inp2026-record').value = '';
+  switchTab('tab-2026', document.querySelector('.nav-link'));
+  renderEntries2026();
 }
 
 // ── 데이터 로드 ──────────────────────────────────────────
@@ -5558,6 +5625,22 @@ fetch('wma_data.json?v=' + Date.now())
     console.error('JSON 로드 오류:', err);
     document.getElementById('analysis-result').innerHTML =
       `<div class="alert alert-danger">🚨 <strong>wma_data.json 로드 실패</strong><br><small>오류: ${err.message}</small></div>`;
+  });
+
+fetch('entries_2026.json?v=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    entries2026 = data.events || {};
+    document.getElementById('entries2026-meta').textContent =
+      `📅 데이터 기준: ${data.generated_at || '알 수 없음'}`;
+    document.getElementById('sel2026-age').addEventListener('change', renderEntries2026);
+    document.getElementById('sel2026-event').addEventListener('change', renderEntries2026);
+    renderEntries2026();
+  })
+  .catch(err => {
+    console.error('entries_2026.json 로드 오류:', err);
+    document.getElementById('entries2026-result').innerHTML =
+      `<div class="alert alert-danger">🚨 <strong>entries_2026.json 로드 실패</strong><br><small>오류: ${err.message}</small></div>`;
   });
 
 // ── 탭 전환 ──────────────────────────────────────────────
@@ -5722,6 +5805,114 @@ function renderAgBox(age, event, recordStr) {
     `<br><small style="color:#888">WMA 2023 Age Factor 적용 · 나이 보정 후 30대 기준 동등 기록</small>`;
 }
 
+// ── 2026 대구 참가현황 분석 ─────────────────────────────────
+function renderEntries2026() {
+  if (!Object.keys(entries2026).length) return;
+  const age     = document.getElementById('sel2026-age').value;
+  const event   = document.getElementById('sel2026-event').value;
+  const recordStr = document.getElementById('inp2026-record').value.trim();
+
+  document.getElementById('entries2026-header').innerHTML =
+    `${event} (${age}) — 현재 등록자 기준 예상 컷오프`;
+  document.getElementById('entries2026-list-header').textContent =
+    `${event} (${age}) 전체 등록자 목록`;
+
+  const rawEntries = entries2026[event]?.[age] || [];
+  if (!rawEntries.length) {
+    document.getElementById('entries2026-result').innerHTML =
+      `<div class="alert alert-warning">해당 종목·연령대 등록자가 아직 없습니다.</div>`;
+    document.getElementById('entries2026-list').innerHTML = '';
+    return;
+  }
+
+  // 유효 기록만 순위 계산에 사용 (NT·이상치 제외)
+  const valid = rawEntries
+    .filter(e => e.seconds !== null && !e.outlier)
+    .slice()
+    .sort((a, b) => a.seconds - b.seconds)
+    .map((e, i) => ({ ...e, rank: i + 1 }));
+  const invalid = rawEntries.filter(e => e.seconds === null || e.outlier);
+  const n = valid.length;
+
+  let html = `<p class="text-muted mb-3">👥 등록 <strong>${rawEntries.length}명</strong> (유효 기록 ${n}명, 기록 미입력/이상치 ${invalid.length}명)</p>`;
+
+  if (n === 0) {
+    html += `<div class="alert alert-warning">유효한 등록 기록이 없어 컷오프를 계산할 수 없습니다.</div>`;
+  } else {
+    // 최근 대회(2024→2022→2018 순) 라운드 구조를 참고해 예선/준결승/결승 진출 인원 기준으로 컷오프 산출
+    let structure = null;
+    for (const y of ['2024','2022','2018']) {
+      const ed = wmaData[y]?.[event]?.[age];
+      if (ed?.final?.length) { structure = ed; break; }
+    }
+
+    const rawMilestones = [];
+    if (structure) {
+      const hasHeat = !!structure.heat, hasSemi = !!structure.semi;
+      const finalN = structure.final.length;
+      if (hasHeat && hasSemi) {
+        const semiN = structure.semi.length;
+        rawMilestones.push({ name:'예선 통과', label:`예선 통과 예상 기록 (최근 대회 기준 상위 ${Math.min(semiN,n)}명)`, obj: valid[Math.min(semiN,n)-1] });
+        rawMilestones.push({ name:'준결승 통과', label:`준결승 진출 예상 기록 (결승 상위 ${Math.min(finalN,n)}명)`, obj: valid[Math.min(finalN,n)-1] });
+      } else if (hasHeat || hasSemi) {
+        const roundName = hasHeat ? '예선' : '준결승';
+        rawMilestones.push({ name:'라운드 통과', label:`${roundName} 통과 예상 기록 (결승 진출 상위 ${Math.min(finalN,n)}명)`, obj: valid[Math.min(finalN,n)-1] });
+      }
+    }
+    rawMilestones.push({ name:'메달 획득', label:'동메달권 (3위)', obj: valid.find(x=>x.rank===3) || valid[valid.length-1] });
+    rawMilestones.push({ name:'우승',     label:'1위', obj: valid[0] });
+    const milestones = rawMilestones.filter(m => m.obj);
+
+    if (structure) {
+      const roundLabel = structure.heat && structure.semi ? '예선 ➔ 준결승 ➔ 결승'
+                        : (structure.heat || structure.semi) ? `${structure.heat ? '예선':'준결승'} ➔ 결승`
+                        : '결승 직행';
+      html += `<p class="text-muted mb-3" style="font-size:0.85em;">📐 최근 대회 라운드 구조 참고: ${roundLabel} (결승 정원 ${structure.final.length}명)</p>`;
+    }
+
+    if (!recordStr) {
+      milestones.forEach(m => {
+        html += `<div class="result-box neutral"><span>${m.label}</span><strong>${m.obj.mark}</strong></div>`;
+      });
+      html += `<div class="alert alert-secondary mt-3">ℹ️ 기록을 입력하면 현재 등록자 대비 예상 순위를 계산합니다.</div>`;
+    } else {
+      const myTime = timeToSeconds(recordStr);
+      let myRank = valid.filter(v => v.seconds < myTime).length + 1;
+      let target = null;
+      milestones.forEach(m => {
+        const isPass = myTime <= m.obj.seconds;
+        if (!isPass && !target) target = m;
+        const cls = isPass ? (m.name.includes('메달')||m.name==='우승' ? 'medal' : 'pass') : 'warn';
+        const icon = isPass ? '✅' : '⚠️';
+        html += `<div class="result-box ${cls}"><span>${m.label}: <strong>${m.obj.mark}</strong></span><span>${icon} ${isPass?'도달':'단축 필요'}</span></div>`;
+      });
+      html += `<div class="alert alert-primary mt-3">📊 현재 등록자 중 예상 순위: <strong>${myRank}위 / ${n}명</strong></div>`;
+      if (target) {
+        const cutSec = target.obj.seconds;
+        const gapSec = myTime - cutSec;
+        const gapStr = gapSec >= 60 ? `${Math.floor(gapSec/60)}분 ${(gapSec%60).toFixed(1)}초` : `${gapSec.toFixed(1)}초`;
+        html += `<div class="alert alert-primary mt-2">🎯 <strong>${target.name}까지 ${gapStr} 단축 필요</strong> (목표: ${target.obj.mark})</div>`;
+      } else {
+        html += `<div class="alert alert-success mt-2">🏆 현재 등록자 중 1위 기록입니다!</div>`;
+      }
+    }
+  }
+
+  document.getElementById('entries2026-result').innerHTML = html;
+
+  // 전체 등록자 목록 테이블
+  let listHtml = `<div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle" style="font-size:0.88em">
+    <thead class="table-dark"><tr><th>순위</th><th>이름</th><th>국가</th><th>기록</th><th>상태</th></tr></thead><tbody>`;
+  valid.forEach(e => {
+    listHtml += `<tr><td>${e.rank}</td><td style="text-align:left">${e.name}</td><td>${e.country}</td><td>${e.mark}</td><td>${e.status}</td></tr>`;
+  });
+  invalid.forEach(e => {
+    listHtml += `<tr class="table-secondary text-muted"><td>-</td><td style="text-align:left">${e.name}</td><td>${e.country}</td><td>${e.mark}${e.outlier ? ' ⚠️' : ''}</td><td>${e.status}</td></tr>`;
+  });
+  listHtml += `</tbody></table></div>`;
+  document.getElementById('entries2026-list').innerHTML = listHtml;
+}
+
 // ── 라운드 요약 필터 ─────────────────────────────────────
 function setHistoryFilter(type, value, btn) {
   historyFilter[type] = value;
@@ -5757,8 +5948,8 @@ function renderHistory(year) {
       <th>종목</th><th>연령</th><th>라운드</th><th>인원</th><th>1위 기록</th><th>컷오프 (진출 마지노선)</th>
     </tr></thead><tbody>`;
 
-  const evOrder = ['800m','1500m','5000m'];
-  const ageOrder = ['M35','M40','M45','M50','W35','W40','W45','W50'];
+  const evOrder = ['400m','800m','1500m','5000m'];
+  const ageOrder = ['M35','M40','M45','M50','M55','W35','W40','W45','W50','W55'];
   const evKeys = evOrder.filter(e => yearData[e]);
   for (const ev of evKeys) {
     if (historyFilter.event !== 'all' && ev !== historyFilter.event) continue;
