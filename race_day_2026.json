@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "source": "meets.rosterathletics.com (Roster Athletics, WMAC2026 공식 대회 시스템)",
+    "note": "800m는 실제 경기결과, 1500m는 예선 확정 스타트리스트(경기 전). 현재 남자 M35/M45만 수집.",
+    "conditions": "경산, 15-16시 진행, 기온 약 35도 고온다습"
+  },
+  "800m": {
+    "M35": {
+      "heat1": [
+        {"rank":1,"mark":"1:58.03","name":"Habib Tiour","country":"FRA"},
+        {"rank":2,"mark":"1:58.46","name":"Alejandro Liñan Rimmer","country":"ESP"},
+        {"rank":3,"mark":"1:58.53","name":"Alejandro José Matienzo Rodríguez","country":"ESP"},
+        {"rank":4,"mark":"1:58.68","name":"Jacob Fehily","country":"GBR"},
+        {"rank":5,"mark":"2:02.25","name":"Florian Herr","country":"GER"},
+        {"rank":6,"mark":"2:02.49","name":"Mohamed Rasheed","country":"MDV"},
+        {"rank":7,"mark":"2:03.26","name":"Juan Pablo Garduno","country":"MEX"},
+        {"rank":8,"mark":"2:06.04","name":"David Escobar Henríquez","country":"CHI"},
+        {"rank":9,"mark":"2:16.24","name":"Pavel Kazantsev","country":"KAZ"},
+        {"rank":10,"mark":"2:29.63","name":"Keunyoung Woo","country":"KOR"},
+        {"rank":11,"mark":"2:58.10","name":"Keita Iwana","country":"JPN"}
+      ],
+      "heat2": [
+        {"rank":1,"mark":"2:00.98","name":"Nicolas Cornejo Montenegro","country":"CHI"},
+        {"rank":2,"mark":"2:01.48","name":"Mehdi Naciri","country":"FRA"},
+        {"rank":3,"mark":"2:01.67","name":"Matthew Winkler","country":"CAN"},
+        {"rank":4,"mark":"2:02.02","name":"Osnoc Del Olmo","country":"ESP"},
+        {"rank":5,"mark":"2:06.70","name":"Stanley Peyton","country":"USA"},
+        {"rank":6,"mark":"2:08.02","name":"Pablo Delgadillo Cortez","country":"MEX"},
+        {"rank":7,"mark":"2:12.73","name":"Nicolas Pineda Salazar","country":"MEX"},
+        {"rank":8,"mark":"2:15.12","name":"Jaeik Chang","country":"KOR"},
+        {"rank":9,"mark":"2:15.52","name":"Łukasz Gałka","country":"POL"},
+        {"rank":10,"mark":"2:23.88","name":"Joan Garcia Torres","country":"ESP"},
+        {"rank":11,"mark":"2:24.62","name":"Scott Brewer","country":"GBR"}
+      ],
+      "dns": [
+        {"name":"Salmi Amiar","country":"ALG","heat":"heat2"}
+      ],
+      "final": [
+        {"rank":1,"mark":"1:53.89","name":"Alejandro José Matienzo Rodríguez","country":"ESP"},
+        {"rank":2,"mark":"1:54.27","name":"Mehdi Naciri","country":"FRA"},
+        {"rank":3,"mark":"1:54.72","name":"Habib Tiour","country":"FRA"},
+        {"rank":4,"mark":"1:55.83","name":"Nicolas Cornejo Montenegro","country":"CHI"},
+        {"rank":5,"mark":"1:57.39","name":"Osnoc Del Olmo","country":"ESP"},
+        {"rank":6,"mark":"1:58.04","name":"Matthew Winkler","country":"CAN"},
+        {"rank":7,"mark":"1:58.23","name":"Jacob Fehily","country":"GBR"},
+        {"rank":8,"mark":"1:59.02","name":"Alejandro Liñan Rimmer","country":"ESP"},
+        {"rank":9,"mark":"2:02.61","name":"Florian Herr","country":"GER"},
+        {"rank":10,"mark":"2:03.10","name":"Mohamed Rasheed","country":"MDV"},
+        {"rank":11,"mark":"2:03.22","name":"Juan Pablo Garduno","country":"MEX"},
+        {"rank":12,"mark":"2:06.24","name":"David Escobar Henríquez","country":"CHI"}
+      ]
+    },
+    "M45": {
+      "heat1": [
+        {"rank":1,"mark":"2:03.91","name":"Paul Grange","country":"GBR"},
+        {"rank":2,"mark":"2:03.97","name":"William Harding","country":"AUS"},
+        {"rank":3,"mark":"2:04.36","name":"Wilfredo Borotoche","country":"VEN"},
+        {"rank":4,"mark":"2:05.11","name":"Yosuke Okawauchi","country":"JPN"},
+        {"rank":5,"mark":"2:06.79","name":"Diego Martin Silvera","country":"ARG"},
+        {"rank":6,"mark":"2:08.57","name":"Khelifa Jebari","country":"FRA"},
+        {"rank":7,"mark":"2:09.92","name":"Jaehyeok Lee","country":"KOR"},
+        {"rank":8,"mark":"2:11.74","name":"Craig Rose","country":"LAT"},
+        {"rank":9,"mark":"2:21.88","name":"Felix Concha Pérez","country":"ESP"},
+        {"rank":10,"mark":"2:31.71","name":"Salman Almajedi","country":"KUW"},
+        {"rank":11,"mark":"2:40.58","name":"Matthew Dyson","country":"GBR"}
+      ],
+      "heat2": [
+        {"rank":1,"mark":"2:06.44","name":"Karol Górny","country":"POL"},
+        {"rank":2,"mark":"2:06.88","name":"Francesco Nadalutti","country":"ITA"},
+        {"rank":3,"mark":"2:07.14","name":"Catalin Amuza","country":"ROU"},
+        {"rank":4,"mark":"2:07.85","name":"Derek Collinge","country":"AUS"},
+        {"rank":5,"mark":"2:08.02","name":"Xabier Fernández Font","country":"ESP"},
+        {"rank":6,"mark":"2:08.74","name":"Trevor Jacek","country":"CAN"},
+        {"rank":7,"mark":"2:14.61","name":"Stephan Wibmer","country":"GER"},
+        {"rank":8,"mark":"2:16.86","name":"Julio Roman Martinez Alvarado","country":"MEX"},
+        {"rank":9,"mark":"2:17.46","name":"Chenggao Jiao","country":"CHN"},
+        {"rank":10,"mark":"2:26.63","name":"Sean Neethling","country":"RSA"},
+        {"rank":11,"mark":"2:30.56","name":"Chris Brown","country":"USA"},
+        {"rank":12,"mark":"2:31.20","name":"Che-Hung Liu","country":"TPE"}
+      ],
+      "heat3": [
+        {"rank":1,"mark":"2:03.17","name":"Yeunsik Ham","country":"KOR"},
+        {"rank":2,"mark":"2:03.48","name":"Jean Marie Cadet","country":"FRA"},
+        {"rank":3,"mark":"2:03.68","name":"Kenji Kusumoto","country":"JPN"},
+        {"rank":4,"mark":"2:04.46","name":"Billy De Jesus","country":"PUR"},
+        {"rank":5,"mark":"2:04.83","name":"Peter Frässdorf","country":"GER"},
+        {"rank":6,"mark":"2:07.57","name":"David Brown","country":"GBR"},
+        {"rank":7,"mark":"2:12.45","name":"Cosmin Sorin Ilie","country":"ROU"},
+        {"rank":8,"mark":"2:13.11","name":"Dashkhuu Nergui","country":"MGL"},
+        {"rank":9,"mark":"2:19.39","name":"Shiliang Li","country":"CHN"},
+        {"rank":10,"mark":"2:21.59","name":"Michael Gerard Teasdale","country":"AUS"},
+        {"rank":11,"mark":"2:21.70","name":"David Willett","country":"GBR"}
+      ],
+      "dns": [
+        {"name":"Wasantha Rohana Kumara Pathirana Kahawala Pathirannehelage","country":"SRI","heat":"heat1"},
+        {"name":"Chaminda Sampath Fernando Kalutharage","country":"SRI","heat":"heat3"}
+      ],
+      "final": [
+        {"rank":1,"mark":"1:58.26","name":"Paul Grange","country":"GBR"},
+        {"rank":2,"mark":"1:59.09","name":"Jean Marie Cadet","country":"FRA"},
+        {"rank":3,"mark":"1:59.76","name":"Yeunsik Ham","country":"KOR"},
+        {"rank":4,"mark":"1:59.93","name":"Kenji Kusumoto","country":"JPN"},
+        {"rank":5,"mark":"2:00.72","name":"Billy De Jesus","country":"PUR"},
+        {"rank":6,"mark":"2:01.84","name":"Karol Górny","country":"POL"},
+        {"rank":7,"mark":"2:03.35","name":"Francesco Nadalutti","country":"ITA"},
+        {"rank":8,"mark":"2:03.43","name":"Wilfredo Borotoche","country":"VEN"},
+        {"rank":9,"mark":"2:05.06","name":"William Harding","country":"AUS"},
+        {"rank":10,"mark":"2:05.52","name":"Peter Frässdorf","country":"GER"},
+        {"rank":11,"mark":"2:06.75","name":"Diego Martin Silvera","country":"ARG"},
+        {"rank":12,"mark":"2:07.83","name":"Yosuke Okawauchi","country":"JPN"}
+      ]
+    }
+  },
+  "1500m_startlist": {
+    "M35": {
+      "heat1": [
+        {"order":1,"name":"Stanley Peyton","country":"USA"},
+        {"order":2,"name":"Myunyong Um","country":"KOR"},
+        {"order":3,"name":"Scott Brewer","country":"GBR"},
+        {"order":4,"name":"Osnoc Del Olmo","country":"ESP"},
+        {"order":5,"name":"Sanghyun Woo","country":"KOR"},
+        {"order":6,"name":"Odkhuu Gal-Erdene","country":"MGL"},
+        {"order":7,"name":"Jose Pereira Ruiz","country":"ESP"},
+        {"order":8,"name":"Guillaume Boglioni Beaulieu","country":"CAN"},
+        {"order":9,"name":"Mohamed Rasheed","country":"MDV"},
+        {"order":10,"name":"Alejandro Liñan Rimmer","country":"ESP"},
+        {"order":11,"name":"Guillaume Lorton","country":"FRA"}
+      ],
+      "heat2": [
+        {"order":1,"name":"Pavel Kazantsev","country":"KAZ"},
+        {"order":2,"name":"Florian Herr","country":"GER"},
+        {"order":3,"name":"Johan Bouffaut","country":"FRA"},
+        {"order":4,"name":"Rong-Ruei Yeh","country":"TPE"},
+        {"order":5,"name":"Nicolas Pineda Salazar","country":"MEX"},
+        {"order":6,"name":"Mohammed Ben Dohhou Laouini","country":"ESP"},
+        {"order":7,"name":"Matthew Winkler","country":"CAN"},
+        {"order":8,"name":"Jaeik Chang","country":"KOR"},
+        {"order":9,"name":"Damian Araujo Pérez","country":"ESP"},
+        {"order":10,"name":"Nakhun Ko","country":"KOR"},
+        {"order":11,"name":"Juan Pablo Garduno","country":"MEX"},
+        {"order":12,"name":"Mehdi Naciri","country":"FRA"}
+      ]
+    },
+    "M45": {
+      "heat1": [
+        {"order":1,"name":"Francesco Nadalutti","country":"ITA"},
+        {"order":2,"name":"Pablo Verdugo Garcés","country":"CHI"},
+        {"order":3,"name":"Khelifa Jebari","country":"FRA"},
+        {"order":4,"name":"Craig Rose","country":"LAT"},
+        {"order":5,"name":"Wilfredo Borotoche","country":"VEN"},
+        {"order":6,"name":"David Willett","country":"GBR"},
+        {"order":7,"name":"Jens Wulff","country":"GER"},
+        {"order":8,"name":"Luigi Del Buono","country":"ITA"},
+        {"order":9,"name":"Francisco Javier Sanz Acebron","country":"ESP"},
+        {"order":10,"name":"Chris Brown","country":"USA"},
+        {"order":11,"name":"Yeunsik Ham","country":"KOR"},
+        {"order":12,"name":"Shintaro Tsujii","country":"JPN"},
+        {"order":13,"name":"Lingxin Gan","country":"SGP"},
+        {"order":14,"name":"Karol Górny","country":"POL"}
+      ],
+      "heat2": [
+        {"order":1,"name":"Jonathan Lee","country":"USA"},
+        {"order":2,"name":"Wasantha Rohana Kumara Pathirana Kahawala Pathirannehelage","country":"SRI"},
+        {"order":3,"name":"Paul Grange","country":"GBR"},
+        {"order":4,"name":"Billy De Jesus","country":"PUR"},
+        {"order":5,"name":"Xabier Fernández Font","country":"ESP"},
+        {"order":6,"name":"Jean Marie Cadet","country":"FRA"},
+        {"order":7,"name":"Stephan Wibmer","country":"GER"},
+        {"order":8,"name":"Catalin Amuza","country":"ROU"},
+        {"order":9,"name":"Che-Hung Liu","country":"TPE"},
+        {"order":10,"name":"William Harding","country":"AUS"},
+        {"order":11,"name":"Brian Sullivan","country":"USA"},
+        {"order":12,"name":"Jeong Cheol Shin","country":"KOR"},
+        {"order":13,"name":"Julio Roman Martinez Alvarado","country":"MEX"},
+        {"order":14,"name":"Chenggao Jiao","country":"CHN"}
+      ]
+    }
+  }
+}
